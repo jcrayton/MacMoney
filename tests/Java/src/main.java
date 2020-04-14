@@ -9,7 +9,7 @@ public class main {
         first.timestamp = "10/10/2010";
         first.data = "{ammount: 1}";
         first.previousHash = sample.getLatestBlock().hash;
-        first.hash = Block.calculateHash(first);
+        first.hash = first.calculateHash();
         sample.addBlock(first);
 
         System.out.println(sample.isChainValid());

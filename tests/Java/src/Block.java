@@ -1,6 +1,7 @@
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.Arrays;
 
 public class Block {
     int index;
@@ -8,10 +9,11 @@ public class Block {
     String data;
     String previousHash;
     String hash;
+    private int nonce;
 
-    public static String calculateHash(Block info) throws NoSuchAlgorithmException
+    public String calculateHash() throws NoSuchAlgorithmException
     {
-        String input = String.valueOf(info.index) + "\t" + info.timestamp + "\t" + info.data + "\t" + info.previousHash + "\t";
+        String input = String.valueOf(this.index) + "\t" + this.timestamp + "\t" + this.data + "\t" + this.previousHash + "\t" + String.valueOf(this.nonce);
         MessageDigest md = MessageDigest.getInstance("SHA-256");
         byte[] hash = md.digest(input.getBytes(StandardCharsets.UTF_8));
 
@@ -24,4 +26,16 @@ public class Block {
         return hexString.toString();
     }
 
+    public void mineBlock(int dif)throws NoSuchAlgorithmException {
+        while (!this.hash.substring(0, dif).equals(getDif(dif))) {
+            this.nonce++;
+            this.hash = this.calculateHash();
+        }
+        System.out.println("Block Mined");
+    }
+    private String getDif(int length) {
+            char[] array = new char[length];
+            Arrays.fill(array, '0');
+            return new String(array);
+    }
 }
