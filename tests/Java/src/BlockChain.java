@@ -36,8 +36,7 @@ public class BlockChain {
         return true;
     }
     public void printable() {
-        for(int i = 0; i < this.chain.size(); i++) {
-            var temp = this.chain.get(i);
+        for(Block temp: this.chain) {
             System.out.println(temp.index + "\t" +  temp.timestamp + "\t"
                     + temp.data + "\t" + temp.previousHash + "\t" + temp.hash);
         }
