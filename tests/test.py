@@ -15,14 +15,14 @@ class Block:
 
     def mineBlock(self, difficulty):
         while(self.hash[:difficulty] != ("0" * difficulty)):
-            self.hash = self.calculateHash()
             self.nonce = self.nonce + 1;
+            self.hash = self.calculateHash()
         print("Block Mined" + self.hash)
 
 class BlockChain:
     def __init__(self):
         self.chain = [self.createGenesisBlock()]
-        self.difficulty = 1;
+        self.difficulty = 5;
 
     def createGenesisBlock(self):
         return Block(0, "01/01/2000", "Origin", "0",)
@@ -43,8 +43,6 @@ class BlockChain:
             previousBlock = self.chain[i - 1]
 
             if currentBlock.hash != currentBlock.calculateHash():
-                print(currentBlock.hash)
-                print(currentBlock.calculateHash())
                 return False
             if currentBlock.previousHash != previousBlock.hash:
                 return False
