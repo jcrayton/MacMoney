@@ -7,24 +7,24 @@ public class BlockChain {
     int difficulty;
     List<Transaction> pendingTransactions;
     int miningReward = 100;
+    List<String> addresses;
 
-    public void createGenisisBlock() throws NoSuchAlgorithmException {
+    public BlockChain(int difficulty, int miningReward) {
         this.chain = new ArrayList<>();
         this.pendingTransactions = new ArrayList<>();
-        this.difficulty = 5;
+        this.difficulty = difficulty;
+        this.addresses = new ArrayList<>();
+    }
 
-        Block origin = new Block("01/01/2000",null, "nope");
+    public void createGenisisBlock() throws NoSuchAlgorithmException {
+        Block origin = new Block(LocalDateTime.now().toString(),null, "nope");
         origin.hash = origin.calculateHash();
         this.chain.add(origin);
     }
     public Block getLatestBlock() {
         return this.chain.get(this.chain.size()-1);
     }
-//    public void addBlock(Block newBlock) throws NoSuchAlgorithmException {
-//        newBlock.previousHash = this.getLatestBlock().hash;
-//        newBlock.mineBlock(this.difficulty);
-//        this.chain.add(newBlock);
-//    }
+
     public void minePendingTransactions(String miningRewardAddress) throws NoSuchAlgorithmException {
         List<Transaction> temp = new ArrayList<>(this.pendingTransactions);
         Block newBlock = new Block(LocalDateTime.now().toString(), temp, this.getLatestBlock().hash);
@@ -34,22 +34,29 @@ public class BlockChain {
         System.out.println("Block Mined " + "\t" + newBlock.hash);
         this.chain.add(newBlock);
         this.pendingTransactions.clear();
-        this.pendingTransactions.add(new Transaction(null, miningRewardAddress, miningReward));
+        addPendingTransaction(new Transaction(null, miningRewardAddress, miningReward));
     }
     public void addPendingTransaction(Transaction exchange) {
         this.pendingTransactions.add(exchange);
+        if(!this.addresses.contains(exchange.toAddress)){
+            this.addresses.add(exchange.toAddress);
+        }
+        if(!this.addresses.contains(exchange.fromAddress)){
+            this.addresses.add(exchange.fromAddress);
+        }
     }
 
     public int getBalanceOfAddress(String address) {
         var balance = 0;
 
-        for(Block b: this.chain) {
-            for(Transaction T: b.transaction){
-                if(T.fromAddress == address) balance = balance - T.amount;
-                if(T.toAddress == address) balance = balance + T.amount;
+        for(Block block: this.chain) {
+            if (block.previousHash != "nope") {
+                for (Transaction T : block.transaction) {
+                    if(T.fromAddress != null) {if (T.fromAddress.equals(address)) balance = balance - T.amount;}
+                    if(T.toAddress.equals(address)) balance = balance + T.amount;
+                }
             }
         }
-
         return balance;
     }
 
