@@ -1,30 +1,56 @@
 import java.security.NoSuchAlgorithmException;
+import java.time.LocalDateTime;
 import java.util.*;
 
 public class BlockChain {
     List<Block> chain;
     int difficulty;
+    List<Transaction> pendingTransactions;
+    int miningReward = 100;
 
     public void createGenisisBlock() throws NoSuchAlgorithmException {
         this.chain = new ArrayList<>();
-        this.difficulty = 1;
+        this.pendingTransactions = new ArrayList<>();
+        this.difficulty = 5;
 
-        Block origin = new Block();
-        origin.index = 0;
-        origin.timestamp = "01/01/2000";
-        origin.data = "origin";
-        origin.previousHash = "null";
+        Block origin = new Block("01/01/2000",null, "nope");
         origin.hash = origin.calculateHash();
         this.chain.add(origin);
     }
     public Block getLatestBlock() {
         return this.chain.get(this.chain.size()-1);
     }
-    public void addBlock(Block newBlock) throws NoSuchAlgorithmException {
-        newBlock.previousHash = this.getLatestBlock().hash;
-//        newBlock.hash = Block.calculateHash(newBlock);
+//    public void addBlock(Block newBlock) throws NoSuchAlgorithmException {
+//        newBlock.previousHash = this.getLatestBlock().hash;
+//        newBlock.mineBlock(this.difficulty);
+//        this.chain.add(newBlock);
+//    }
+    public void minePendingTransactions(String miningRewardAddress) throws NoSuchAlgorithmException {
+        List<Transaction> temp = new ArrayList<>(this.pendingTransactions);
+        Block newBlock = new Block(LocalDateTime.now().toString(), temp, this.getLatestBlock().hash);
+        newBlock.hash = newBlock.calculateHash();
         newBlock.mineBlock(this.difficulty);
+
+        System.out.println("Block Mined " + "\t" + newBlock.hash);
         this.chain.add(newBlock);
+        this.pendingTransactions.clear();
+        this.pendingTransactions.add(new Transaction(null, miningRewardAddress, miningReward));
+    }
+    public void addPendingTransaction(Transaction exchange) {
+        this.pendingTransactions.add(exchange);
+    }
+
+    public int getBalanceOfAddress(String address) {
+        var balance = 0;
+
+        for(Block b: this.chain) {
+            for(Transaction T: b.transaction){
+                if(T.fromAddress == address) balance = balance - T.amount;
+                if(T.toAddress == address) balance = balance + T.amount;
+            }
+        }
+
+        return balance;
     }
 
     public Boolean isChainValid() throws NoSuchAlgorithmException {
@@ -34,14 +60,13 @@ public class BlockChain {
 
             if (!currentBlock.hash.equals(currentBlock.calculateHash())) {System.out.println("1"); return false;}
             if (!currentBlock.previousHash.equals(previousBlock.hash)) {System.out.println("2"); return false;}
-            if (currentBlock.index <= previousBlock.index) {System.out.println("3"); return false;}
         }
         return true;
     }
     public void printable() {
         for(Block temp: this.chain) {
-            System.out.println(temp.index + "\t" +  temp.timestamp + "\t"
-                    + temp.data + "\t" + temp.previousHash + "\t" + temp.hash);
+            System.out.println(temp.timestamp + "\t"
+                    + temp.transaction + "\t" + temp.previousHash + "\t" + temp.hash);
         }
     }
 }
