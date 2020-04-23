@@ -6,17 +6,30 @@ import java.util.List;
 
 public class Block {
     String timestamp;
-    List<Transaction> transaction;
+    List<Transaction> transactions;
     String previousHash;
     String hash;
-    int nonce;
+    private int nonce;
 
-    Block(String timestamp, List<Transaction> transaction, String previousHash) {
+    private Block() {
+        // https://stackoverflow.com/questions/52708773/cannot-deserialize-from-object-value-no-delegate-or-property-based-creator-ev
+    }
+
+    Block(String timestamp, List<Transaction> transactions, String previousHash) {
+        this(); // https://stackoverflow.com/questions/52708773/cannot-deserialize-from-object-value-no-delegate-or-property-based-creator-ev
         this.timestamp = timestamp;
-        this.transaction = transaction;
+        this.transactions = transactions;
         this.previousHash = previousHash;
         this.nonce = 0;
         this.hash = "";
+    }
+
+    public void setNonce(int nonce) {
+        this.nonce = nonce;
+    }
+
+    public void setHash(String hash) {
+        this.hash = hash;
     }
 
     public int getNonce() {
@@ -27,8 +40,8 @@ public class Block {
         return hash;
     }
 
-    public List<Transaction> getTransaction() {
-        return transaction;
+    public List<Transaction> getTransactions() {
+        return transactions;
     }
 
     public String getPreviousHash() {
@@ -39,9 +52,9 @@ public class Block {
         return timestamp;
     }
 
-    public String calculateHash() throws NoSuchAlgorithmException
+    String calculateHash() throws NoSuchAlgorithmException
     {
-        String input =  this.timestamp + "\t" + this.transaction + "\t" + this.previousHash + "\t" + String.valueOf(this.nonce);
+        String input =  this.timestamp + "\t" + this.transactions + "\t" + this.previousHash + "\t" + String.valueOf(this.nonce);
         MessageDigest md = MessageDigest.getInstance("SHA-256");
         byte[] hash = md.digest(input.getBytes(StandardCharsets.UTF_8));
 
@@ -54,7 +67,7 @@ public class Block {
         return hexString.toString();
     }
 
-    public void mineBlock(int dif)throws NoSuchAlgorithmException {
+    void mineBlock(int dif)throws NoSuchAlgorithmException {
         while (!this.hash.substring(0, dif).equals(getDif(dif))) {
             this.nonce++;
             this.hash = this.calculateHash();

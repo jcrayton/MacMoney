@@ -1,6 +1,8 @@
 import java.io.File;
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class Main {
@@ -16,12 +18,10 @@ public class Main {
         try {
             ObjectMapper mapper = new ObjectMapper();
             sample = mapper.readValue(new File("chain.json"), BlockChain.class);
-            System.out.println(sample.difficulty);
         }
         catch (IOException e) {
-            System.out.println("We've had a problem reading the chain.json file");
             System.out.println(e);
-            sample = new BlockChain(2, 15);
+            sample = new BlockChain(2, 15, new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
         }
 //        BlockChain sample = new BlockChain(1, 50);
 
@@ -36,5 +36,15 @@ public class Main {
         for(String name: sample.addresses) {
             System.out.println(name + '\t' + sample.getBalanceOfAddress(name));
         }
+
+
+        // Java object to JSON string, default compact-print
+
+//        ObjectMapper mapper = new ObjectMapper();
+//        String jsonString = mapper.writeValueAsString(new Transaction("bill", "steve", 5));
+//        System.out.println(jsonString);
+//
+//        Transaction obj = mapper.readValue(jsonString, Transaction.class);
+
     }
 }

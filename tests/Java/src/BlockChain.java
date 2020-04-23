@@ -6,18 +6,24 @@ import java.io.File;  // Import the File class
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class BlockChain {
-    List<Block> chain;
     int difficulty;
-    List<Transaction> pendingTransactions;
-    int miningReward = 100;
+    private int miningReward;
+    private List<Block> chain;
+    private List<Transaction> pendingTransactions;
     List<String> addresses;
 
-    public BlockChain(int difficulty, int miningReward) throws NoSuchAlgorithmException, IOException {
+    private BlockChain() {
+        // https://stackoverflow.com/questions/52708773/cannot-deserialize-from-object-value-no-delegate-or-property-based-creator-ev
+    }
+
+    BlockChain(int difficulty, int miningReward, List<Block> chain, List<Transaction> pendingTransactions, List<String> addresses) throws NoSuchAlgorithmException, IOException {
+        this();
         this.chain = new ArrayList<>();
         this.pendingTransactions = new ArrayList<>();
         this.difficulty = difficulty;
         this.addresses = new ArrayList<>();
         this.createGenisisBlock();
+        this.miningReward = miningReward;
 
         updateChain(this);
     }
@@ -62,7 +68,7 @@ public class BlockChain {
         return this.chain.get(this.chain.size()-1);
     }
 
-    public void minePendingTransactions(String miningRewardAddress) throws NoSuchAlgorithmException, IOException {
+    void minePendingTransactions(String miningRewardAddress) throws NoSuchAlgorithmException, IOException {
         List<Transaction> temp = new ArrayList<>(this.pendingTransactions);
         Block newBlock = new Block(LocalDateTime.now().toString(), temp, this.getLatestBlock().hash);
         newBlock.hash = newBlock.calculateHash();
@@ -74,7 +80,7 @@ public class BlockChain {
         addPendingTransaction(new Transaction(null, miningRewardAddress, miningReward));
         updateChain(this);
     }
-    public void addPendingTransaction(Transaction exchange) {
+    void addPendingTransaction(Transaction exchange) {
         this.pendingTransactions.add(exchange);
         if(!this.addresses.contains(exchange.toAddress)){
             this.addresses.add(exchange.toAddress);
@@ -84,12 +90,12 @@ public class BlockChain {
         }
     }
 
-    public int getBalanceOfAddress(String address) {
+    int getBalanceOfAddress(String address) {
         var balance = 0;
 
         for(Block block: this.chain) {
-            if (block.previousHash != "nope") {
-                for (Transaction T : block.transaction) {
+            if (!block.previousHash.equals("nope")) {
+                for (Transaction T : block.transactions) {
                     if(T.fromAddress != null) {if (T.fromAddress.equals(address)) balance = balance - T.amount;}
                     if(T.toAddress.equals(address)) balance = balance + T.amount;
                 }
@@ -111,7 +117,7 @@ public class BlockChain {
     void printable() {
         for(Block temp: this.chain) {
             System.out.println(temp.timestamp + "\t"
-                    + temp.transaction + "\t" + temp.previousHash + "\t" + temp.hash);
+                    + temp.transactions + "\t" + temp.previousHash + "\t" + temp.hash);
         }
     }
 }
