@@ -1,3 +1,4 @@
+
 public class Transaction {
     String fromAddress;
     String toAddress;
