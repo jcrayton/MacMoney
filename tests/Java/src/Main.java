@@ -1,12 +1,13 @@
+import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 
-public class main {
-    public static void main(String[] args) throws NoSuchAlgorithmException {
+public class Main {
+    public static void main(String[] args) throws NoSuchAlgorithmException, IOException {
         String miningID;
-        if (args[0] != null) miningID = args[0];
-        else miningID = "charity";
-        BlockChain sample = new BlockChain(5, 50);
-        sample.createGenisisBlock();
+        if (args.length != 0) miningID = args[0];
+        else miningID = "Charity";
+//        miningID = "charity";
+        BlockChain sample = new BlockChain(1, 50);
 
         Transaction first = new Transaction("Bill", "Bob", 50);
         sample.addPendingTransaction(first);

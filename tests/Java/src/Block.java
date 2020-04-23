@@ -11,10 +11,32 @@ public class Block {
     String hash;
     int nonce;
 
-    public Block(String timestamp, List<Transaction> transaction, String previousHash) {
+    Block(String timestamp, List<Transaction> transaction, String previousHash) {
         this.timestamp = timestamp;
         this.transaction = transaction;
         this.previousHash = previousHash;
+        this.nonce = 0;
+        this.hash = "";
+    }
+
+    public int getNonce() {
+        return nonce;
+    }
+
+    public String getHash() {
+        return hash;
+    }
+
+    public List<Transaction> getTransaction() {
+        return transaction;
+    }
+
+    public String getPreviousHash() {
+        return previousHash;
+    }
+
+    public String getTimestamp() {
+        return timestamp;
     }
 
     public String calculateHash() throws NoSuchAlgorithmException
