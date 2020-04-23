@@ -10,7 +10,7 @@ public class Main {
         BlockChain theChain;
         String miningID;
 //            Use if you need a new blockchain started
-//        theChain = new BlockChain(2, 100, new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
+        theChain = new BlockChain(2, 100, new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
 
         if (args.length != 0) {
             String chainLocal = args[0];
