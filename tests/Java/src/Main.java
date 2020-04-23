@@ -7,33 +7,38 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class Main {
     public static void main(String[] args) throws NoSuchAlgorithmException, IOException {
-        BlockChain sample;
+        BlockChain theChain;
         String miningID;
+//            Use if you need a new blockchain started
+//        theChain = new BlockChain(2, 100, new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
 
-        if (args.length != 0) miningID = args[0];
-        else miningID = "Charity";
+        if (args.length != 0) {
+            String chainLocal = args[0];
+            if (args.length >= 2) {miningID = args[1]; System.out.println("Sending Rewards to miner: " + miningID);}
+            else {miningID = "Charity"; System.out.println("No mining id provided. Sending rewards to charity.");}
 
-        // https://mkyong.com/java/jackson-2-convert-java-object-to-from-json/
-        try {
-            ObjectMapper mapper = new ObjectMapper();
-            sample = mapper.readValue(new File("chain.json"), BlockChain.class);
+            // https://mkyong.com/java/jackson-2-convert-java-object-to-from-json/
+            try {
+                ObjectMapper mapper = new ObjectMapper();
+                theChain = mapper.readValue(new File(chainLocal), BlockChain.class);
+
+                theChain.addPendingTransaction(new Transaction("Bill", "Bob", 50));
+
+                for(int i = 0; i<= 25; i++) {
+                    theChain.minePendingTransactions(miningID);
+                }
+
+//                theChain.printable();
+                System.out.println(theChain.isChainValid());
+                for(String name: theChain.addresses) {
+                    System.out.println(name + '\t' + theChain.getBalanceOfAddress(name));
+                }
+            }
+            catch (IOException e) {
+                e.printStackTrace();
+            }
         }
-        catch (IOException e) {
-            System.out.println(e);
-            sample = new BlockChain(2, 15, new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
-        }
-
-        sample.addPendingTransaction(new Transaction("Bill", "Bob", 50));
-
-        for(int i = 0; i<= 25; i++) {
-            sample.minePendingTransactions(miningID);
-        }
-
-        sample.printable();
-        System.out.println(sample.isChainValid());
-        for(String name: sample.addresses) {
-            System.out.println(name + '\t' + sample.getBalanceOfAddress(name));
-        }
+        else System.out.println("Please provide a path to the local copy of the blockchain.");
 
     }
 }
