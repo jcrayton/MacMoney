@@ -3,8 +3,6 @@ import java.security.NoSuchAlgorithmException;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.io.File;  // Import the File class
-import java.io.FileNotFoundException;  // Import this class to handle errors
-import java.util.Scanner; // Import the Scanner class to read text files
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class BlockChain {
@@ -34,6 +32,14 @@ public class BlockChain {
 
     public List<Block> getChain() {
         return chain;
+    }
+
+    public List<String> getAddresses() {
+        return addresses;
+    }
+
+    public List<Transaction> getPendingTransactions() {
+        return pendingTransactions;
     }
 
     private void updateChain(BlockChain chain) throws IOException {
@@ -102,7 +108,7 @@ public class BlockChain {
         }
         return true;
     }
-    public void printable() {
+    void printable() {
         for(Block temp: this.chain) {
             System.out.println(temp.timestamp + "\t"
                     + temp.transaction + "\t" + temp.previousHash + "\t" + temp.hash);
