@@ -3,6 +3,8 @@ import java.security.NoSuchAlgorithmException;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.io.File;  // Import the File class
+
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class BlockChain {
@@ -104,12 +106,12 @@ public class BlockChain {
         return balance;
     }
 
-    Boolean isChainValid() throws NoSuchAlgorithmException {
+    Boolean isChainValid() throws NoSuchAlgorithmException, JsonProcessingException {
         for (int i = 1; i < this.chain.size(); i++) {
             Block currentBlock = this.chain.get(i);
             Block previousBlock = this.chain.get(i-1);
 
-            if (!currentBlock.hash.equals(currentBlock.calculateHash())) {System.out.println("1"); return false;}
+            if (!currentBlock.hash.equals(currentBlock.calculateHash())) {System.out.println("1"); System.out.println(currentBlock.timestamp + "\t" + currentBlock.hash + "\t" + currentBlock.calculateHash()); return false;}
             if (!currentBlock.previousHash.equals(previousBlock.hash)) {System.out.println("2"); return false;}
         }
         return true;
@@ -117,7 +119,7 @@ public class BlockChain {
     void printable() {
         for(Block temp: this.chain) {
             System.out.println(temp.timestamp + "\t"
-                    + temp.transactions + "\t" + temp.previousHash + "\t" + temp.hash);
+                    + temp.transactions + "\t" + temp.previousHash + "\t" + temp.hash + "\t" + temp.getNonce());
         }
     }
 }

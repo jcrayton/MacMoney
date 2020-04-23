@@ -7,12 +7,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class Main {
     public static void main(String[] args) throws NoSuchAlgorithmException, IOException {
+        BlockChain sample;
         String miningID;
+
         if (args.length != 0) miningID = args[0];
         else miningID = "Charity";
-
-
-        BlockChain sample;
 
         // https://mkyong.com/java/jackson-2-convert-java-object-to-from-json/
         try {
@@ -23,7 +22,6 @@ public class Main {
             System.out.println(e);
             sample = new BlockChain(2, 15, new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
         }
-//        BlockChain sample = new BlockChain(1, 50);
 
         sample.addPendingTransaction(new Transaction("Bill", "Bob", 50));
 
@@ -36,15 +34,6 @@ public class Main {
         for(String name: sample.addresses) {
             System.out.println(name + '\t' + sample.getBalanceOfAddress(name));
         }
-
-
-        // Java object to JSON string, default compact-print
-
-//        ObjectMapper mapper = new ObjectMapper();
-//        String jsonString = mapper.writeValueAsString(new Transaction("bill", "steve", 5));
-//        System.out.println(jsonString);
-//
-//        Transaction obj = mapper.readValue(jsonString, Transaction.class);
 
     }
 }
