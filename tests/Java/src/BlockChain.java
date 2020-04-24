@@ -8,23 +8,23 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class BlockChain {
-    int difficulty;
+    private int difficulty;
     private int miningReward;
     private List<Block> chain;
-    private List<Transaction> pendingTransactions;
+    List<Transaction> pendingTransactions;
     List<String> addresses;
 
     private BlockChain() {
         // https://stackoverflow.com/questions/52708773/cannot-deserialize-from-object-value-no-delegate-or-property-based-creator-ev
     }
 
-    BlockChain(int difficulty, int miningReward, List<Block> chain, List<Transaction> pendingTransactions, List<String> addresses) throws NoSuchAlgorithmException, IOException {
+    BlockChain(int difficulty, int miningReward, List<Block> chain, List<Transaction> pendingTransactions, List<String> addresses) throws IOException {
         this();
         this.chain = new ArrayList<>();
         this.pendingTransactions = new ArrayList<>();
         this.difficulty = difficulty;
         this.addresses = new ArrayList<>();
-        this.createGenisisBlock();
+        this.createGenesisBlock();
         this.miningReward = miningReward;
 
         updateChain(this);
@@ -50,6 +50,10 @@ public class BlockChain {
         return pendingTransactions;
     }
 
+    public void setPendingTransactions(List<Transaction> pendingTransactions) {
+        this.pendingTransactions = pendingTransactions;
+    }
+
     private void updateChain(BlockChain chain) throws IOException {
 
         // https://mkyong.com/java/jackson-2-convert-java-object-to-from-json/
@@ -57,12 +61,12 @@ public class BlockChain {
         mapper.writeValue(new File("chain.json"), chain);
     }
 
-    private void createGenisisBlock() throws NoSuchAlgorithmException, IOException {
+    private void createGenesisBlock() {
         List<Transaction> temp = new ArrayList<>();
         temp.add(new Transaction("", "", 0));
 
         Block origin = new Block(LocalDateTime.now().toString(),temp, "nope");
-        origin.hash = origin.calculateHash();
+        origin.hash = "";
 
         this.chain.add(origin);
     }
@@ -74,20 +78,30 @@ public class BlockChain {
         List<Transaction> temp = new ArrayList<>(this.pendingTransactions);
         Block newBlock = new Block(LocalDateTime.now().toString(), temp, this.getLatestBlock().hash);
         newBlock.hash = newBlock.calculateHash();
-        newBlock.mineBlock(this.difficulty);
 
-        System.out.println("Block Mined " + "\t" + newBlock.hash);
-        this.chain.add(newBlock);
         this.pendingTransactions.clear();
+//         https://mkyong.com/java/jackson-2-convert-java-object-to-from-json/
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.writeValue(new File("PendingTransactions.json"), pendingTransactions);
+
+        newBlock.mineBlock(this.difficulty);
+        System.out.print("\r" + "Block Mined " + "\t" + newBlock.hash);
+        this.chain.add(newBlock);
+
         addPendingTransaction(new Transaction(null, miningRewardAddress, miningReward));
         updateChain(this);
     }
-    void addPendingTransaction(Transaction exchange) {
+    void addPendingTransaction(Transaction exchange) throws IOException {
         this.pendingTransactions.add(exchange);
+
+        // https://mkyong.com/java/jackson-2-convert-java-object-to-from-json/
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.writeValue(new File("PendingTransactions.json"), pendingTransactions);
+
         if(!this.addresses.contains(exchange.toAddress)){
             this.addresses.add(exchange.toAddress);
         }
-        if(!this.addresses.contains(exchange.fromAddress)){
+        if(!this.addresses.contains(exchange.fromAddress) && exchange.fromAddress != null){
             this.addresses.add(exchange.fromAddress);
         }
     }

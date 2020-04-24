@@ -1,5 +1,6 @@
 
 public class Transaction {
+    private final String type = "transaction";
     String fromAddress;
     String toAddress;
     int amount;
