@@ -12,7 +12,7 @@ public class Main {
         BlockChain theChain;
         String miningID;
 //            Use if you need a new blockchain started
-        theChain = new BlockChain(5, 100, new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
+        theChain = new BlockChain(3, 100, new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
 
 
         if (args.length != 0) {
@@ -36,8 +36,8 @@ public class Main {
 
                 theChain.addPendingTransaction(new Transaction("Bill", "Bob", 50));
 
-                int i = 0;
-                while(i <= 10) {
+                int i = 1;
+                while(i <= 25) {
                     theChain.minePendingTransactions(miningID);
                     System.out.print("\t" + "#" + i);
                     i++;

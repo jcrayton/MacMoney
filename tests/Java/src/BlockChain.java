@@ -70,7 +70,7 @@ public class BlockChain {
 
         this.chain.add(origin);
     }
-    private Block getLatestBlock() {
+    Block getLatestBlock() {
         return this.chain.get(this.chain.size()-1);
     }
 
@@ -84,7 +84,7 @@ public class BlockChain {
         ObjectMapper mapper = new ObjectMapper();
         mapper.writeValue(new File("PendingTransactions.json"), pendingTransactions);
 
-        newBlock.mineBlock(this.difficulty);
+        newBlock.mineBlock(this);
         System.out.print("\r" + "Block Mined " + "\t" + newBlock.hash);
         this.chain.add(newBlock);
 
@@ -135,5 +135,20 @@ public class BlockChain {
             System.out.println(temp.timestamp + "\t"
                     + temp.transactions + "\t" + temp.previousHash + "\t" + temp.hash + "\t" + temp.getNonce());
         }
+    }
+    Boolean checkForChanges() throws IOException, NoSuchAlgorithmException {
+        BlockChain verififyChain = new ObjectMapper().readValue(new File("chain.json"), BlockChain.class);
+        if (!verififyChain.isChainValid()) { //the other chain is wrong, continue as normal
+            updateChain(this); //fix it
+            return false;
+        }
+        if (verififyChain.getLatestBlock().calculateHash().equals(this.getLatestBlock().calculateHash()) &&
+                verififyChain.getLatestBlock().previousHash.equals(this.getLatestBlock().previousHash)) return false; //should be the same if true
+        for(Block block: verififyChain.chain) if (block.previousHash.equals(this.getLatestBlock().previousHash) && block.calculateHash().equals(this.getLatestBlock().calculateHash())) {
+            this.chain = verififyChain.chain;
+            return true;
+        }
+        updateChain(this); //technically correct, but we are now forked. Commit to the path!!
+        return false;
     }
 }

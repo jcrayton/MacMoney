@@ -1,6 +1,7 @@
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -56,10 +57,7 @@ public class Block {
     }
 
     String calculateHash() throws NoSuchAlgorithmException, JsonProcessingException {
-
-        ObjectMapper mapper = new ObjectMapper();
-        String transactionString = mapper.writeValueAsString(this.transactions);
-        String input =  this.timestamp + "\t" + transactionString + "\t" + this.previousHash + "\t" + String.valueOf(this.nonce);
+        String input =  this.timestamp + "\t" + new ObjectMapper().writeValueAsString(this.transactions) + "\t" + this.previousHash + "\t" + this.nonce;
         MessageDigest md = MessageDigest.getInstance("SHA-256");
         byte[] hash = md.digest(input.getBytes(StandardCharsets.UTF_8));
 
@@ -72,8 +70,13 @@ public class Block {
         return hexString.toString();
     }
 
-    void mineBlock(int dif) throws NoSuchAlgorithmException, JsonProcessingException {
-        while (!this.hash.substring(0, dif).equals(getDif(dif))) {
+    void mineBlock(BlockChain chain) throws NoSuchAlgorithmException, IOException {
+        while (!this.hash.substring(0, chain.getDifficulty()).equals(getDif(chain.getDifficulty()))) {
+            if (chain.checkForChanges()) {
+                System.out.println("Chain Slipped, resetting...");
+                this.nonce = -1;
+                this.previousHash = chain.getLatestBlock().previousHash;
+            }
             this.nonce++;
             this.hash = this.calculateHash();
         }
