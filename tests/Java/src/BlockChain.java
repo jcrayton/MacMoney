@@ -158,15 +158,16 @@ public class BlockChain {
     Boolean checkForChanges() throws IOException, NoSuchAlgorithmException {
         for (String location : this.chainList) {
             BlockChain verififyChain = new ObjectMapper().readValue(new File(location), BlockChain.class);
-            if (!verififyChain.isChainValid()) { //the other chain is wrong, continue as normal
-                return false;
-            }
-            if (verififyChain.getLatestBlock().calculateHash().equals(this.getLatestBlock().calculateHash()) &&
-                    verififyChain.getLatestBlock().previousHash.equals(this.getLatestBlock().previousHash)) return false; //should be the same if true
-            for(Block block: verififyChain.chain) if (block.previousHash.equals(this.getLatestBlock().previousHash) && block.calculateHash().equals(this.getLatestBlock().calculateHash())) {
-                this.chain = verififyChain.chain;
-                updateChain(); //fix it
-                return true;
+            if (verififyChain.isChainValid()) { //the other chain is wrong, continue as normal
+                if (!verififyChain.getLatestBlock().calculateHash().equals(this.getLatestBlock().calculateHash())) {
+                    for (Block block : verififyChain.chain) {
+                        if (block.previousHash.equals(this.getLatestBlock().previousHash) && block.calculateHash().equals(this.getLatestBlock().calculateHash())) {
+                            this.chain = verififyChain.chain;
+                            updateChain(); //fix it
+                            return true;
+                        }
+                    }
+                }
             }
         }
 
