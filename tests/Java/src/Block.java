@@ -1,7 +1,5 @@
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-
-import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
@@ -71,15 +69,21 @@ public class Block {
         return hexString.toString();
     }
 
-    void mineBlock(BlockChain chain) throws NoSuchAlgorithmException, IOException {
+    void mineBlock(BlockChain chain) throws NoSuchAlgorithmException, IOException, InterruptedException {
         while (!this.hash.substring(0, chain.getDifficulty()).equals(getDif(chain.getDifficulty()))) {
-            if (checkForChanges(chain)) {
-                System.out.println("Chain Slipped, resetting...");
-                this.nonce = -1;
-                this.previousHash = chain.getLatestBlock().previousHash;
+            try{
+                if (chain.checkForChanges()) {
+                    System.out.println("Chain Slipped, resetting...");
+                    this.nonce = -1;
+                    this.previousHash = chain.getLatestBlock().hash;
+                }
+                this.nonce++;
+                this.hash = this.calculateHash();
             }
-            this.nonce++;
-            this.hash = this.calculateHash();
+            catch (Exception e) {
+                // I'm not proud of this
+                Thread.sleep(100);
+            }
         }
     }
     private String getDif(int length) {
@@ -87,19 +91,19 @@ public class Block {
             Arrays.fill(array, '0');
             return new String(array);
     }
-    private Boolean checkForChanges(BlockChain chain) throws IOException, NoSuchAlgorithmException {
-        BlockChain verififyChain = new ObjectMapper().readValue(new File("chain.json"), BlockChain.class);
-        if (!verififyChain.isChainValid()) { //the other chain is wrong, continue as normal
-            chain.updateChain(); //fix it
-            return false;
-        }
-        if (verififyChain.getLatestBlock().calculateHash().equals(chain.getLatestBlock().calculateHash()) &&
-                verififyChain.getLatestBlock().previousHash.equals(chain.getLatestBlock().previousHash)) return false; //should be the same if true
-        for(Block block: verififyChain.getChain()) if (block.previousHash.equals(chain.getLatestBlock().previousHash) && block.calculateHash().equals(chain.getLatestBlock().calculateHash())) {
-            chain = verififyChain;
-            return true;
-        }
-        chain.updateChain(); //technically correct, but we are now forked. Commit to the path!!
-        return false;
-    }
+//    private Boolean checkForChanges(BlockChain chain) throws IOException, NoSuchAlgorithmException {
+//        BlockChain verififyChain = new ObjectMapper().readValue(new File("chain.json"), BlockChain.class);
+//        if (!verififyChain.isChainValid()) { //the other chain is wrong, continue as normal
+//            chain.updateChain(); //fix it
+//            return false;
+//        }
+//        if (verififyChain.getLatestBlock().calculateHash().equals(chain.getLatestBlock().calculateHash()) &&
+//                verififyChain.getLatestBlock().previousHash.equals(chain.getLatestBlock().previousHash)) return false; //should be the same if true
+//        for(Block block: verififyChain.getChain()) if (block.previousHash.equals(chain.getLatestBlock().previousHash) && block.calculateHash().equals(chain.getLatestBlock().calculateHash())) {
+//            chain = verififyChain;
+//            return true;
+//        }
+//        chain.updateChain(); //technically correct, but we are now forked. Commit to the path!!
+//        return false;
+//    }
 }
