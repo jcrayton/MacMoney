@@ -27,7 +27,11 @@ public class Main {
             List<String> chainList = new ArrayList<>();
 // https://www.geeksforgeeks.org/different-ways-reading-text-file-java/
             Scanner sc = new Scanner(new File(stringChainList));
-            while (sc.hasNextLine()) chainList.add(sc.nextLine());
+            while (sc.hasNextLine()) {
+                String temp = sc.nextLine();
+                if (temp.substring(0,2).equals("")) chainList.add(temp);
+                else chainList.add(temp);
+            }
             System.out.println("p2p files obtained, " + chainList.size() + " files listed.");
 // https://www.baeldung.com/java-random-list-element
             String attempt = chainList.get(new Random().nextInt(chainList.size()));
@@ -51,7 +55,7 @@ public class Main {
                  int i = 1;
                  while(i <= 10) {
                      theChain.minePendingTransactions(miningID);
-                     System.out.print("\t" + "#" + i);
+                     System.out.println("\t" + "#" + i);
                      i++;
                  }
                  theChain.printable();

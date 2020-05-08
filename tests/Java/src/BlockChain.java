@@ -94,7 +94,7 @@ public class BlockChain {
         mapper.writeValue(new File("PendingTransactions.json"), pendingTransactions);
 
         newBlock.mineBlock(this);
-        System.out.print("\r" + "Block Mined " + "\t" + newBlock.hash);
+        System.out.println("Block Mined " + "\t" + newBlock.hash);
         this.chain.add(newBlock);
 
         addPendingTransaction(new Transaction(null, miningRewardAddress, miningReward));

@@ -82,7 +82,7 @@ public class Block {
             }
             catch (Exception e) {
                 // I'm not proud of this
-                Thread.sleep(100);
+                Thread.sleep(500);
             }
         }
     }
